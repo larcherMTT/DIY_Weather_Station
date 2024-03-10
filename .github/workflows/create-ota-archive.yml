@@ -15,6 +15,7 @@ jobs:
 
     - name: Move to Firmware Directory
       run: |
+        ls -la
         cd oustide_station/software/src
 
     - name: Create Tar.gz Archive
