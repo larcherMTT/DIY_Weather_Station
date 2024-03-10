@@ -1,0 +1,24 @@
+name: Create Tar.gz Archive for OTA Updates
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-archive:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Create Tar.gz Archive
+      run: |
+        tar -czf archive.tar.gz -C ouside_station/software/src/
+
+    - name: Upload Archive
+      uses: actions/upload-artifact@v2
+      with:
+        name: archive
+        path: oustide_station/software/firmware.tar.gz
