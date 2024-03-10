@@ -1,5 +1,5 @@
 """
-A simple example that demonstrates how to publish data to a MQTT broker
+A simple script that reads the temperature from a thermistor and publishes it to an MQTT topic.
 """
 
 import network
