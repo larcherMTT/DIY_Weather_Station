@@ -15,7 +15,7 @@ jobs:
 
     - name: Create Tar.gz Archive
       run: |
-        tar -czvf firmware.tar.gz outside_station/software/src/*
+        tar -czvf outside_station/software/firmware.tar.gz outside_station/software/src/*
 
 
     - name: Upload Archive
