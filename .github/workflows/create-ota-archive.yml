@@ -1,5 +1,5 @@
-name: Create Tar.gz Archive for OTA Updates
-run-name: ${{ github.actor }} - ${{ github.event_name }}
+name: Create tar.gz Archive for OTA Updates
+run-name: ${{ github.actor }} - Create tar.gz Archive for OTA Updates
 
 on:
   push:
@@ -17,9 +17,13 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - name: Remove old archive
+      run: |
+        rm -f outside_station/software/firmware.tar.gz
+
     - name: Create Tar.gz Archive
       run: |
-        tar -czvf outside_station/software/firmware.tar.gz outside_station/software/src/*
+        tar -czvf outside_station/software/firmware.tar.gz -C outside_station/software/src .
 
     - name: Commit the generated archive
       uses: EndBug/add-and-commit@v9

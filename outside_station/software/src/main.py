@@ -7,34 +7,26 @@ import time
 import math
 from umqtt.simple import MQTTClient
 import machine
-import micropython_ota
+import uota
 
-# Fill in your WiFi network name (ssid) and password here:
-wifi_ssid = "<your wifi ssid>"
-wifi_password = "<your wifi password>"
+# Import the config file
+import config
 
 # Connect to WiFi
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
-wlan.connect(wifi_ssid, wifi_password)
+wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
 while wlan.isconnected() == False:
     print('Waiting for connection...')
     time.sleep(1)
 print("Connected to WiFi")
 
 # OTA update
-ota_host = 'https://github.com/larcherMTT/DIY_Weather_Station/tree/main/outside_station/software'
-project_name = ''
-filenames = ['main.py']
+print('Starting OTA update')
+if uota.check_for_updates():
+      uota.install_new_firmware()
+      machine.reset()
 
-micropython_ota.ota_update(ota_host, project_name, filenames, use_version_prefix=False, hard_reset_device=True, soft_reset_device=False, timeout=5)
-print('OTA update done')
-
-# Broker settings:
-mqtt_broker = "raspi"
-
-# Client ID:
-mqtt_client_id = "test_mqtt_pico"
 
 # Topic where the data will be published to
 mqtt_publish_topic_t1 = 'sensors/temperature_int'
@@ -42,9 +34,9 @@ mqtt_publish_topic_t2 = 'sensors/temperature_ext'
 
 # Initialize our MQTTClient and connect to the MQTT server
 mqtt_client = MQTTClient(
-    client_id = mqtt_client_id,
-    server = mqtt_broker,
-    port = 1883
+    client_id = config.MQTT_CLIENT_ID,
+    server = config.MQTT_BROKER,
+    port = config.MQTT_PORT
     )
 
 mqtt_client.connect()
