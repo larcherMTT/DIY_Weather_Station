@@ -2,8 +2,11 @@ name: Create Tar.gz Archive for OTA Updates
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'outside_station/software/src/**'
+
+permissions:
+  contents: write
 
 jobs:
   create-archive:
