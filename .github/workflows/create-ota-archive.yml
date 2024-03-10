@@ -17,9 +17,11 @@ jobs:
       run: |
         tar -czvf outside_station/software/firmware.tar.gz outside_station/software/src/*
 
+    - name: Commit and Push
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions.github.com"
+        git add outside_station/software/firmware.tar.gz
+        git commit -m "Create firmware.tar.gz"
+        git push
 
-    - name: Upload Archive
-      uses: actions/upload-artifact@v2
-      with:
-        name: archive
-        path: outside_station/software/firmware.tar.gz
