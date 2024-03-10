@@ -10,8 +10,8 @@ import machine
 import micropython_ota
 
 # Fill in your WiFi network name (ssid) and password here:
-wifi_ssid = "XXXXXXXXXX"
-wifi_password = "xxxxxxxxxx"
+wifi_ssid = "<your wifi ssid>"
+wifi_password = "<your wifi password>"
 
 # Connect to WiFi
 wlan = network.WLAN(network.STA_IF)

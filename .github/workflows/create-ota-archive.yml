@@ -1,4 +1,5 @@
 name: Create Tar.gz Archive for OTA Updates
+run-name: ${{ github.actor }} - ${{ github.event_name }}
 
 on:
   push:
