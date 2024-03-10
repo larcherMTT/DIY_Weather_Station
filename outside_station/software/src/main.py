@@ -17,15 +17,16 @@ wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
 while wlan.isconnected() == False:
-    print('Waiting for connection...')
-    time.sleep(1)
+  print('Waiting for connection...')
+  time.sleep(1)
 print("Connected to WiFi")
 
 # OTA update
 print('Starting OTA update')
 if uota.check_for_updates():
-      uota.install_new_firmware()
-      machine.reset()
+  uota.install_new_firmware()
+  print('New firmware installed, rebooting...')
+  machine.reset()
 
 
 # Topic where the data will be published to
@@ -34,10 +35,10 @@ mqtt_publish_topic_t2 = 'sensors/temperature_ext'
 
 # Initialize our MQTTClient and connect to the MQTT server
 mqtt_client = MQTTClient(
-    client_id = config.MQTT_CLIENT_ID,
-    server = config.MQTT_BROKER,
-    port = config.MQTT_PORT
-    )
+  client_id = config.MQTT_CLIENT_ID,
+  server = config.MQTT_BROKER,
+  port = config.MQTT_PORT
+  )
 
 mqtt_client.connect()
 
@@ -62,48 +63,48 @@ C = 0.0000000876741
 fix = 5 # offset
 
 def ReadTemperature_int():
-    # Read temperature
-    adc_value = sensor_int.read_u16()
-    volt = (3.3/65535)*adc_value
-    temperature = 27 - (volt - 0.706)/0.001721
-    return round(temperature, 1)
+  # Read temperature
+  adc_value = sensor_int.read_u16()
+  volt = (3.3/65535)*adc_value
+  temperature = 27 - (volt - 0.706)/0.001721
+  return round(temperature, 1)
 
 def ReadTemperature_ext():
-    # Read temperature
-    adc_value = sensor_ext.read_u16()
-    volt = (3.3/65535)*adc_value
+  # Read temperature
+  adc_value = sensor_ext.read_u16()
+  volt = (3.3/65535)*adc_value
 
-    # Calculate Resistance
-    Rt = (volt * Ro) / (Vin - volt)
-    # Rt = 10000  # Used for Testing. Setting Rt=10k should give TempC=25
+  # Calculate Resistance
+  Rt = (volt * Ro) / (Vin - volt)
+  # Rt = 10000  # Used for Testing. Setting Rt=10k should give TempC=25
 
-    # Steinhart - Hart Equation
-    TempK = 1 / (A + (B * math.log(Rt)) + C * math.pow(math.log(Rt), 3))
+  # Steinhart - Hart Equation
+  TempK = 1 / (A + (B * math.log(Rt)) + C * math.pow(math.log(Rt), 3))
 
-    # Convert from Kelvin to Celsius
-    TempC = TempK - 273.15 - fix
-    return round(TempC, 1)
+  # Convert from Kelvin to Celsius
+  TempC = TempK - 273.15 - fix
+  return round(TempC, 1)
 
 # Publish a data point to the topic every XX seconds
 try:
-    while True:
-        # Toggle the LED
-        # pin.toggle()
+  while True:
+    # Toggle the LED
+    # pin.toggle()
 
-        temperature_int = ReadTemperature_int()
-        temperature_ext = ReadTemperature_ext()
+    temperature_int = ReadTemperature_int()
+    temperature_ext = ReadTemperature_ext()
 
-        # Publish the data to the topic!
-        print(f'Publish {temperature_int:.2f}')
-        mqtt_client.publish(mqtt_publish_topic_t1, str(temperature_int))
+    # Publish the data to the topic!
+    print(f'Publish {temperature_int:.2f}')
+    mqtt_client.publish(mqtt_publish_topic_t1, str(temperature_int))
 
-        print(f'Publish {temperature_ext:.2f}')
-        mqtt_client.publish(mqtt_publish_topic_t2, str(temperature_ext))
+    print(f'Publish {temperature_ext:.2f}')
+    mqtt_client.publish(mqtt_publish_topic_t2, str(temperature_ext))
 
-        # Delay a bit to avoid hitting the rate limit
-        time.sleep(30)
+    # Delay a bit to avoid hitting the rate limit
+    time.sleep(30)
 except Exception as e:
-    print(f'Failed to publish message: {e}')
+  print(f'Failed to publish message: {e}')
 finally:
-    mqtt_client.disconnect()
-    pin.off()
+  mqtt_client.disconnect()
+  pin.off()
