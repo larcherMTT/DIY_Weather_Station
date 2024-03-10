@@ -11,17 +11,14 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Create Tar.gz Archive
       run: |
         tar -czvf outside_station/software/firmware.tar.gz outside_station/software/src/*
 
-    - name: Commit and Push
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions.github.com"
-        git add outside_station/software/firmware.tar.gz
-        git commit -m "Create firmware.tar.gz"
-        git push
-
+    - name: Commit the generated archive
+      uses: EndBug/add-and-commit@v9
+      with:
+        add: 'outside_station/software/firmware.tar.gz'
+        default_author: github-actions
