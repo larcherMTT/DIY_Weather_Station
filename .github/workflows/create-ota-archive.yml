@@ -13,18 +13,13 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Move to Firmware Directory
-      run: |
-        ls -la
-        cd oustide_station/software/src
-
     - name: Create Tar.gz Archive
       run: |
-        tar -czvf firmware.tar.gz *
+        tar -czvf firmware.tar.gz outside_station/software/src/*
 
 
     - name: Upload Archive
       uses: actions/upload-artifact@v2
       with:
         name: archive
-        path: oustide_station/software/firmware.tar.gz
+        path: outside_station/software/firmware.tar.gz
