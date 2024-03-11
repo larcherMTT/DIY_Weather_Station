@@ -43,7 +43,7 @@ mqtt_client = MQTTClient(
 mqtt_client.connect()
 
 # Initialize the LED
-pin = machine.Pin("LED", machine.Pin.OUT)
+LED_pin = machine.Pin("LED", machine.Pin.OUT)
 #initialize onboard temperature sensor
 adcpin_int = 4
 sensor_int = machine.ADC(adcpin_int)
@@ -51,7 +51,7 @@ sensor_int = machine.ADC(adcpin_int)
 adcpin_ext = 26
 sensor_ext = machine.ADC(adcpin_ext)
 
-dht_sensor = dht.DHT11(Pin(22))
+dht_sensor = dht.DHT11(machine.Pin(22))
 
 # constants (thermistor)
 # Voltage Divider
@@ -91,7 +91,7 @@ def ReadTemperature_ext():
 try:
   while True:
     # Toggle the LED
-    # pin.toggle()
+    # LED_pin.toggle()
 
     temperature_int = ReadTemperature_int()
     temperature_ext = ReadTemperature_ext()
