@@ -7,6 +7,7 @@ import time
 import math
 from umqtt.simple import MQTTClient
 import machine
+import dht
 import uota
 
 # Import the config file
@@ -30,8 +31,7 @@ if uota.check_for_updates():
 
 
 # Topic where the data will be published to
-mqtt_publish_topic_t1 = 'sensors/temperature_int'
-mqtt_publish_topic_t2 = 'sensors/temperature_ext'
+mqtt_publish_topic = 'sensors/temperature_humidity'
 
 # Initialize our MQTTClient and connect to the MQTT server
 mqtt_client = MQTTClient(
@@ -50,6 +50,8 @@ sensor_int = machine.ADC(adcpin_int)
 
 adcpin_ext = 26
 sensor_ext = machine.ADC(adcpin_ext)
+
+dht_sensor = dht.DHT11(Pin(22))
 
 # constants (thermistor)
 # Voltage Divider
@@ -93,13 +95,13 @@ try:
 
     temperature_int = ReadTemperature_int()
     temperature_ext = ReadTemperature_ext()
+    dht_sensor.measure()
+    temp_dht = dht_sensor.temperature()
+    hum_dht = dht_sensor.humidity()
 
     # Publish the data to the topic!
-    print(f'Publish {temperature_int:.2f}')
-    mqtt_client.publish(mqtt_publish_topic_t1, str(temperature_int))
-
-    print(f'Publish {temperature_ext:.2f}')
-    mqtt_client.publish(mqtt_publish_topic_t2, str(temperature_ext))
+    print(f'Publish {temperature_int} {temperature_ext} {temp_dht} {hum_dht}')
+    mqtt_client.publish(mqtt_publish_topic, f'{{"temperature_int": {temperature_int}, "temperature_ext": {temperature_ext}, "temperature_dht": {temp_dht}, "humidity_dht": {hum_dht}}}')
 
     # Delay a bit to avoid hitting the rate limit
     time.sleep(30)
