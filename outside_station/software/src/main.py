@@ -30,7 +30,7 @@ if uota.check_for_updates():
   machine.reset()
 
 
-# Topic where the data will be published to
+# Topic where the data will be published to (parent topic)
 mqtt_publish_topic = 'sensors/temperature_humidity'
 
 # Initialize our MQTTClient and connect to the MQTT server
@@ -99,9 +99,16 @@ try:
     temp_dht = dht_sensor.temperature()
     hum_dht = dht_sensor.humidity()
 
-    # Publish the data to the topic!
-    print(f'Publish {temperature_int} {temperature_ext} {temp_dht} {hum_dht}')
-    mqtt_client.publish(mqtt_publish_topic, f'{{"temperature_int": {temperature_int}, "temperature_ext": {temperature_ext}, "temperature_dht": {temp_dht}, "humidity_dht": {hum_dht}}}')
+    # Publish the data to the topics! with %3.1f digit
+    mqtt_client.publish(f'{mqtt_publish_topic}/temperature_int', str(temperature_int))
+    mqtt_client.publish(f'{mqtt_publish_topic}/temperature_ext', str(temperature_ext))
+    mqtt_client.publish(f'{mqtt_publish_topic}/temperature_dht', str(temp_dht))
+    mqtt_client.publish(f'{mqtt_publish_topic}/humidity_dht', str(hum_dht))
+    print(f'Temperature (int): {temperature_int}°C')
+    print(f'Temperature (ext): {temperature_ext}°C')
+    print(f'Temperature (DHT): {temp_dht}°C')
+    print(f'Humidity (DHT): {hum_dht}%')
+    print('- - - - - - - - - - - - - - - -')
 
     # Delay a bit to avoid hitting the rate limit
     time.sleep(30)
