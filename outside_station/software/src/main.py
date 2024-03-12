@@ -8,6 +8,7 @@ import math
 from umqtt.simple import MQTTClient
 import machine
 import dht
+import bme280
 import uota
 
 # Import the config file
@@ -30,7 +31,7 @@ if uota.check_for_updates():
   machine.reset()
 
 
-# Topic where the data will be published to (parent topic)
+# Topic where the data will be published to
 mqtt_publish_topic = 'sensors/temperature_humidity'
 
 # Initialize our MQTTClient and connect to the MQTT server
@@ -48,10 +49,16 @@ LED_pin = machine.Pin("LED", machine.Pin.OUT)
 adcpin_int = 4
 sensor_int = machine.ADC(adcpin_int)
 
+#initialize external temperature sensor
 adcpin_ext = 26
 sensor_ext = machine.ADC(adcpin_ext)
 
+#initialize DHT11 sensor
 dht_sensor = dht.DHT11(machine.Pin(22))
+
+#initialize BME280 sensor
+i2c_bme = machine.I2C(1,sda=machine.Pin(10), scl=machine.Pin(11), freq=400000)    #initializing the I2C method
+bme = bme280.BME280(i2c=i2c_bme)
 
 # constants (thermistor)
 # Voltage Divider
@@ -95,23 +102,35 @@ try:
 
     temperature_int = ReadTemperature_int()
     temperature_ext = ReadTemperature_ext()
-    dht_sensor.measure()
-    temp_dht = dht_sensor.temperature()
-    hum_dht = dht_sensor.humidity()
 
-    # Publish the data to the topics! with %3.1f digit
+    dht_sensor.measure()
+    temp_dht = float(dht_sensor.temperature())
+    hum_dht = float(dht_sensor.humidity())
+
+    bme_values = bme.values
+    temp_bme = bme_values[0]
+    press_bme = bme_values[1]
+    hum_bme = bme_values[2]
+
+    # Publish the data to the topics! with %3.1f format
     mqtt_client.publish(f'{mqtt_publish_topic}/temperature_int', str(temperature_int))
     mqtt_client.publish(f'{mqtt_publish_topic}/temperature_ext', str(temperature_ext))
     mqtt_client.publish(f'{mqtt_publish_topic}/temperature_dht', str(temp_dht))
     mqtt_client.publish(f'{mqtt_publish_topic}/humidity_dht', str(hum_dht))
-    print(f'Temperature (int): {temperature_int}°C')
-    print(f'Temperature (ext): {temperature_ext}°C')
-    print(f'Temperature (DHT): {temp_dht}°C')
-    print(f'Humidity (DHT): {hum_dht}%')
+    mqtt_client.publish(f'{mqtt_publish_topic}/temperature_bme', str(temp_bme)[:-1])
+    mqtt_client.publish(f'{mqtt_publish_topic}/pressure_bme', str(press_bme)[:-3])
+    mqtt_client.publish(f'{mqtt_publish_topic}/humidity_bme', str(hum_bme)[:-1])
+    print(f'Temperature (int): {temperature_int}')
+    print(f'Temperature (ext): {temperature_ext}')
+    print(f'Temperature (DHT): {temp_dht}')
+    print(f'Humidity (DHT): {hum_dht}')
+    print(f'Temperature (BME): {temp_bme}')
+    print(f'Pressure (BME): {press_bme}')
+    print(f'Humidity (BME): {hum_bme}')
     print('- - - - - - - - - - - - - - - -')
 
-    # Delay a bit to avoid hitting the rate limit
-    time.sleep(30)
+    # Sleep for 30 seconds
+    machine.lightsleep(300000)
 except Exception as e:
   print(f'Failed to publish message: {e}')
 finally:
