@@ -97,6 +97,10 @@ def ReadTemperature_ext():
 # Publish a data point to the topic every XX seconds
 try:
   while True:
+
+    # activate the wifi
+    wlan.active(True)
+
     # Toggle the LED
     # LED_pin.toggle()
 
@@ -129,8 +133,11 @@ try:
     print(f'Humidity (BME): {hum_bme}')
     print('- - - - - - - - - - - - - - - -')
 
+    # power off the wifi
+    wlan.active(False)
+    wlan.deinit()
     # Sleep for 30 seconds
-    machine.lightsleep(300000)
+    machine.lightsleep(30000)
 except Exception as e:
   print(f'Failed to publish message: {e}')
 finally:
